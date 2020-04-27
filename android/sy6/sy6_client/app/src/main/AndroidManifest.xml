@@ -3,6 +3,7 @@
     package="com.example.lpz_6">
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/icon"
         android:label="AndroidSy6ByLPZ"
