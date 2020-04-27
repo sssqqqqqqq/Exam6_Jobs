@@ -3,7 +3,6 @@ module.exports={
         let res = await model.find(condtion).exec();
         return res;
       },
-
       async create(model,condtion){
         await model.create(
             condtion,(err,doc)=>{
@@ -17,5 +16,9 @@ module.exports={
         );
        
       },
+      async fuzzyFind(model,regx){
+        let result= await model.find({$or:[{title:{$regex:new RegExp(regx)}}]}).exec();
+        return result;
+      }
     
 }
