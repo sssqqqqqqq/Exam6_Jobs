@@ -3,9 +3,10 @@
     package="com.example.lpz_6">
 
     <application
+        android:usesCleartextTraffic="true"
         android:allowBackup="true"
         android:icon="@drawable/icon"
-        android:label="AndroidSy6ByLPZ"
+        android:label="AndroidSy7ByLPZ"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
