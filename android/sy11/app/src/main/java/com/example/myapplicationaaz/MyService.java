@@ -2,6 +2,7 @@ package com.example.myapplicationaaz;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -11,6 +12,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -21,18 +23,27 @@ import java.util.List;
 public class MyService extends Service {
 
     //初始化MediaPlay类
-    private static  MediaPlayer mediaPlayer =   new MediaPlayer();;
+    private MediaPlayer mediaPlayer =   new MediaPlayer();;
     //设置播放列表
     private List<Music> list = new ArrayList<>();
     //设置初始播放歌曲位置
     private int mindex = 0;
     //设置MyAppWidgetProvider类传递来的动作信息
     public static String ACTION = "to_service";
+    public static String UI_ACTION = "to_UI";
     public static String KEY_USR_ACTION = "key_usr_action";
+    public static String KEY_UI_ACTION = "key_ui_action";
     public static final int ACTION_PLAY_PAUSE = 1,ACTION_NEXT = 2,ACTION_LAST = 3;
     private boolean mPlayState = false;
 
+    private void uiChange(Context context, int ACTION) {
+        Intent actionIntent = new Intent();
+        actionIntent.setAction(MyService.UI_ACTION);
+        actionIntent.putExtra(KEY_UI_ACTION, ACTION);
+        actionIntent.setComponent(new ComponentName(context,AppWidget.class));
+        sendBroadcast(actionIntent);
 
+    }
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -49,6 +60,7 @@ public class MyService extends Service {
                 switch (widget_action){
                     case ACTION_LAST:
                         lastSong(context);
+                        uiChange(context,mindex);
                         break;
                     case ACTION_PLAY_PAUSE:
                         if (mPlayState){
@@ -59,6 +71,7 @@ public class MyService extends Service {
                         break;
                     case ACTION_NEXT:
                         nextSong(context);
+                        uiChange(context,mindex);
                         break;
                     default:
                         break;
@@ -81,6 +94,7 @@ public class MyService extends Service {
         //初始化播放列表
         initlist();
         //开始播放
+
         mediaPlayerStart();
     }
 
@@ -88,6 +102,13 @@ public class MyService extends Service {
     private void mediaPlayerStart(){
 
         mediaPlayer=MediaPlayer.create(getApplicationContext(), Uri.parse(list.get(mindex).getUrl()));
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                nextSong(getApplicationContext());
+                uiChange(getApplicationContext(),mindex);
+            }
+        });
         mediaPlayer.start();
         mPlayState = true;
     }
@@ -96,7 +117,7 @@ public class MyService extends Service {
     private void initlist(){
         list = MusicList.getMusicData(getApplicationContext());
         for(int i = 0;i<list.size();i++){
-            System.out.println(list.get(i).getUrl());
+            System.out.println(list.get(i));
         }
     }
 
@@ -107,7 +128,6 @@ public class MyService extends Service {
 
     @Override
     public void onDestroy() {
-        System.out.println("------");
         super.onDestroy();
         unregisterReceiver(receiver);
         mediaPlayer.stop();
@@ -121,7 +141,6 @@ public class MyService extends Service {
 
     //播放下一首的方法
     public void nextSong(Context context){
-        System.out.println("-------");
         mPlayState = true;
         mindex++;
         mindex%=list.size();
@@ -142,6 +161,7 @@ public class MyService extends Service {
     public void play(Context context){
         mPlayState = true;
         mediaPlayer.start();
+
     }
 
     //暂停方法
