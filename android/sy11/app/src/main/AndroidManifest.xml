@@ -5,7 +5,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/icon"
-        android:label="sy11bylpz"
+        android:label="sy10bylpz"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
